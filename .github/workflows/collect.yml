@@ -1,0 +1,34 @@
+name: 조회수 수집
+
+on:
+  schedule:
+    - cron: "0 0 1 * *"   # 매월 1일 00:00 UTC = 한국 오전 9시
+  workflow_dispatch:       # GitHub에서 [Run workflow] 버튼으로 바로 실행
+
+permissions:
+  contents: write
+
+concurrency:
+  group: collect
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 테스트
+        run: python -m unittest discover -s tests -v
+      - name: 수집
+        run: python collector/collect.py data
+      - name: 저장
+        run: |
+          git config user.name "kosif-stats-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet || git commit -m "data: $(TZ=Asia/Seoul date +%F) 조회수 수집"
+          git push

@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>KoSIF 콘텐츠 조회수</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+/* 레이아웃: 위에 요약, 그 아래 탭별로 [그래프 | 게시판 표] 2단, 맨 아래 전체 글 목록 */
+:root {
+  --bg: #fbfaf8; --panel: #ffffff; --fg: #1d1b19; --muted: #6b6560; --line: #e7e2dc;
+  --accent: #ff6714; --accent-soft: #ffe3d3; --bar2: #2f6f8f; --bar3: #6f8f2f; --bar4: #8f5a2f;
+  --gray: #c9c3bc; --font: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #161412; --panel: #1f1c19; --fg: #f1ece6; --muted: #a59d95; --line: #35302b;
+    --accent: #ff7a33; --accent-soft: #4a2a17; --bar2: #5aa3c7; --bar3: #a3c75a; --bar4: #c7925a; --gray: #4d4741; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.6 var(--font); font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 28px max(16px, env(safe-area-inset-left)) 60px max(16px, env(safe-area-inset-right)); display: flex; flex-direction: column; gap: 22px; }
+h1 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+h1 b { color: var(--accent); }
+.meta { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.take { margin: 10px 0 0; max-width: 72ch; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
+.tabs button { font: inherit; font-weight: 600; background: none; border: 0; padding: 10px 14px; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px; }
+.tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
+.tabs button:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.desc { color: var(--muted); font-size: 14px; margin: 0; max-width: 80ch; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 12px; }
+.tile, .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; min-width: 0; }
+.tile .l { color: var(--muted); font-size: 13px; }
+.tile .n { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-top: 2px; }
+.tile .s { color: var(--muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 12px; }
+.card h2 { font-size: 16px; margin: 0; }
+body.v-gained #board-card { grid-column: 1 / -1; }
+.tile .n.txt { font-size: 20px; line-height: 1.35; padding-top: 4px; }
+.card .note { color: var(--muted); font-size: 13px; margin: 2px 0 12px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--muted); margin-bottom: 8px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; }
+.chart text { fill: var(--fg); font-family: var(--font); }
+.chart .m { fill: var(--muted); }
+.tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.12); padding: 6px 10px; font-size: 12.5px; white-space: nowrap; z-index: 3; }
+.tip .t { color: var(--muted); }
+.empty { color: var(--muted); font-size: 14px; padding: 28px 8px; text-align: center; }
+.box { max-height: 520px; overflow: auto; border-top: 1px solid var(--line); }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th { position: sticky; top: 0; background: var(--panel); text-align: left; color: var(--muted); font-weight: 600; padding: 8px; border-bottom: 1px solid var(--line); white-space: nowrap; z-index: 1; }
+th button { all: unset; cursor: pointer; }
+th[aria-sort="descending"] button::after { content: " ↓"; }
+th[aria-sort="ascending"] button::after { content: " ↑"; }
+td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.n, th.n { text-align: right; }
+tr.off td { color: var(--muted); }
+a { color: inherit; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+a:hover { text-decoration-color: var(--accent); }
+.inbar { display: inline-block; height: 7px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
+.tools { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.tools input, .tools select { font: inherit; font-size: 13.5px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--fg); }
+.tools input { flex: 1 1 220px; }
+.count { color: var(--muted); font-size: 13px; align-self: center; }
+@media (max-width: 640px) { .wide { display: none; } h1 { font-size: 23px; } }
+ul.notes { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13.5px; display: flex; flex-direction: column; gap: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><b>KoSIF</b> 콘텐츠 조회수</h1>
+    <div class="meta" id="meta">불러오는 중…</div>
+    <p class="take" id="take"></p>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="보기 선택">
+    <button role="tab" id="tab-all" data-view="all" aria-selected="true">누적</button>
+    <button role="tab" id="tab-written" data-view="written" aria-selected="false">올해 쓴 글</button>
+    <button role="tab" id="tab-gained" data-view="gained" aria-selected="false">올해 생긴 조회수</button>
+  </nav>
+  <p class="desc" id="desc"></p>
+
+  <section class="tiles" id="tiles" aria-label="핵심 숫자"></section>
+
+  <div class="grid2">
+    <section class="card">
+      <h2 id="chart-title"></h2>
+      <p class="note" id="chart-note"></p>
+      <div class="legend" id="legend"></div>
+      <div class="chart" id="chart"></div>
+    </section>
+    <section class="card" id="month-card">
+      <h2>월별로 늘어난 조회수</h2>
+      <p class="note" id="month-note"></p>
+      <div class="chart" id="month-chart"></div>
+    </section>
+    <section class="card" id="board-card">
+      <h2>게시판별 표</h2>
+      <p class="note">열 제목을 누르면 정렬돼요. 게시판 이름을 누르면 홈페이지 목록이 새 창으로 열려요.</p>
+      <div class="box"><table id="board-table"><thead></thead><tbody></tbody></table></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>전체 글 목록</h2>
+    <p class="note">제목을 누르면 글이 새 창으로 열려요(열면 그 글 조회수가 1 올라가요. 일반 방문자와 같아요).</p>
+    <div class="tools">
+      <input id="q" type="search" placeholder="제목으로 찾기" aria-label="제목으로 찾기">
+      <select id="bf" aria-label="게시판 고르기"><option value="">모든 게시판</option></select>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="box"><table id="post-table"><thead></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>읽을 때 알아둘 점</h2>
+    <ul class="notes">
+      <li>조회수는 <b>글을 연 횟수</b>예요. 같은 사람이 다시 열어도 올라가서 방문자 수와는 달라요.</li>
+      <li>매월 1일 오전 9시에 자동으로 모든 글을 한 번씩 열어서 숫자를 읽어요. 그때 생기는 조회수는 이 페이지 숫자에서 <b>빼고</b> 보여줘요.</li>
+      <li><b>CDP Resources·정기간행물</b>은 목록에서 파일을 바로 받는 구조라 조회수가 거의 안 쌓여요(회색). 인기가 없다는 뜻이 아니에요.</li>
+      <li>‘올해 생긴 조회수’는 2026년 10월 20일부터 쌓기 시작했어요. 2027년부터는 1월 1일부터 온전히 보여요.</li>
+      <li>2025년 3월 홈페이지 이전 때 옛 글 조회수가 초기화됐을 수 있어요(확인 안 됨).</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const fmt = (n) => (n == null || isNaN(n) ? "–" : Math.round(n).toLocaleString("ko-KR"));
+  const POST_URL = (bo, id) => `https://kosif.org/bbs/board.php?bo_table=${encodeURIComponent(bo)}&wr_id=${id}`;
+  const BOARD_URL = (bo) => `https://kosif.org/bbs/board.php?bo_table=${encodeURIComponent(bo)}`;
+  const MENUS = ["자료실", "소식", "CDP", "활동"];
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const menuColor = (m) => css(["--accent", "--bar2", "--bar3", "--bar4"][MENUS.indexOf(m)] || "--gray");
+  const median = (a) => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y), h = s.length >> 1; return s.length % 2 ? s[h] : (s[h - 1] + s[h]) / 2; };
+  const el = (tag, props = {}, kids = []) => { const e = document.createElement(tag); Object.assign(e, props); for (const k of kids) e.append(k); return e; };
+  const link = (href, text) => el("a", { href, target: "_blank", rel: "noopener", textContent: text });
+
+  let S = null;           // 불러온 데이터
+  let view = "all";
+  const sorts = { board: { k: "value", d: -1 }, post: { k: "value", d: -1 } };
+
+  async function getJSON(p) { const r = await fetch(p, { cache: "no-cache" }); if (!r.ok) throw new Error(p); return r.json(); }
+
+  async function load() {
+    const [boards, posts, idx] = await Promise.all([getJSON("data/boards.json"), getJSON("data/posts.json"), getJSON("data/snapshots/index.json")]);
+    const dates = idx.snapshots.slice().sort();
+    const latestDate = dates[dates.length - 1];
+    const year = latestDate.slice(0, 4);
+    const yearDates = dates.filter((d) => d.startsWith(year));
+    const need = [...new Set([latestDate, ...yearDates])];
+    const snaps = {};
+    await Promise.all(need.map(async (d) => { snaps[d] = await getJSON(`data/snapshots/${d}.json`); }));
+    const latest = snaps[latestDate];
+    const base = snaps[yearDates[0]];
+    const list = Object.entries(posts).filter(([k, p]) => !p.deleted && k in latest).map(([k, p]) => ({
+      key: k, bo: p.bo, id: p.id, title: p.title, cat: p.cat, date: p.date, hits: latest[k],
+      // 기준일 이후 새로 생긴 글은 조회수 전체가 올해분
+      gained: latest[k] - (k in base ? base[k] : 0),
+      isNew: !(k in base)
+    }));
+    // 월별 증가: 연속된 스냅샷의 차이를 (뒤 날짜 - 1일)의 달에 배정
+    const months = new Map();
+    for (let i = 1; i < yearDates.length; i++) {
+      const a = snaps[yearDates[i - 1]], b = snaps[yearDates[i]];
+      let sum = 0; for (const k in b) sum += b[k] - (k in a ? a[k] : 0);
+      const d = new Date(yearDates[i] + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() - 1);
+      const label = `${d.getUTCMonth() + 1}월`;
+      months.set(label, (months.get(label) || 0) + sum);
+    }
+    S = { boards, list, year, latestDate, baseDate: yearDates[0], updated: idx.updated, yearDates, months: [...months] };
+    const bf = $("#bf");
+    boards.forEach((b) => bf.append(el("option", { value: b.code, textContent: `${b.board}` })));
+    const h = location.hash.slice(1);
+    if (["all", "written", "gained"].includes(h)) view = h;
+    render();
+  }
+
+  function rowsFor(v) {
+    if (v === "written") return S.list.filter((p) => p.date.startsWith(S.year));
+    return S.list;
+  }
+  const valueOf = (v, p) => (v === "gained" ? p.gained : p.hits);
+
+  function boardStats(v) {
+    const posts = rowsFor(v);
+    return S.boards.map((b) => {
+      const ps = posts.filter((p) => p.bo === b.code);
+      const vals = ps.map((p) => valueOf(v, p));
+      const total = vals.reduce((s, x) => s + x, 0);
+      const top = ps.reduce((m, p) => (!m || valueOf(v, p) > valueOf(v, m) ? p : m), null);
+      return { ...b, posts: ps.length, total, avg: ps.length ? total / ps.length : null, med: median(vals), top,
+               value: v === "gained" ? total : (ps.length ? total / ps.length : null) };
+    });
+  }
+
+  const TEXT = {
+    all: { desc: "글이 올라온 뒤 지금까지 쌓인 전체 조회수예요.", chart: "게시판별 글 1개당 평균 조회수", note: "글 하나가 평균 몇 번 열렸는지예요. 회색은 조회수가 안 쌓이는 게시판이에요." },
+    written: { desc: "올해 올린 글만 모았어요. 이 글들의 조회수는 모두 올해 생긴 거예요.", chart: "게시판별 글 1개당 평균 조회수(올해 쓴 글)", note: "올해 글이 없는 게시판은 빠져요." },
+    gained: { desc: "글을 언제 썼든, 올해 늘어난 조회수만 셌어요.", chart: "게시판별 올해 늘어난 조회수", note: "게시판 안 모든 글에서 늘어난 조회수의 합이에요." }
+  };
+
+  function render() {
+    document.querySelectorAll(".tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.view === view)));
+    document.body.className = "v-" + view;
+    const t = TEXT[view];
+    $("#desc").textContent = t.desc + (view === "gained" ? ` (${S.baseDate.slice(5).replace("-", "/")}부터 집계)` : "");
+    $("#chart-title").textContent = t.chart;
+    $("#chart-note").textContent = t.note;
+    const upd = S.updated ? new Date(S.updated) : null;
+    $("#meta").textContent = `마지막 갱신: ${upd ? upd.toLocaleString("ko-KR", { dateStyle: "long", timeStyle: "short", timeZone: "Asia/Seoul" }) : S.latestDate} · 다음 자동 갱신: 매월 1일 오전 9시`;
+    const stats = boardStats(view);
+    const posts = rowsFor(view);
+    const gainedReady = S.yearDates.length > 1 || posts.some((p) => p.isNew);
+    renderTiles(stats, posts);
+    renderTake(stats, posts, gainedReady);
+    renderBoardChart(stats, gainedReady);
+    renderMonths();
+    renderBoardTable(stats);
+    renderPosts();
+  }
+
+  function tile(label, value, sub, subNode, isText) {
+    const s = el("div", { className: "s" }); if (subNode) s.append(subNode); else s.textContent = sub || "";
+    return el("div", { className: "tile" }, [el("div", { className: "l", textContent: label }), el("div", { className: isText ? "n txt" : "n", textContent: value }), s]);
+  }
+
+  function renderTiles(stats, posts) {
+    const tiles = $("#tiles"); tiles.replaceChildren();
+    const measurable = stats.filter((b) => b.measurable && b.posts);
+    const total = posts.reduce((s, p) => s + valueOf(view, p), 0);
+    const best = [...measurable].sort((a, b) => (b.value ?? -1) - (a.value ?? -1))[0];
+    const topPost = [...posts].sort((a, b) => valueOf(view, b) - valueOf(view, a))[0];
+    tiles.append(
+      tile(view === "written" ? `${S.year}년에 쓴 글` : "공개 글", `${fmt(posts.length)}개`, `게시판 ${stats.filter((b) => b.posts).length}개`),
+      tile(view === "gained" ? "올해 늘어난 조회수" : "조회수 합계", fmt(total), view === "gained" ? `${S.baseDate.slice(5).replace("-", "/")}부터` : "글을 연 횟수의 합"),
+      tile("글 1개당 평균", fmt(posts.length ? total / posts.length : null), "전체 게시판 기준"),
+      tile(view === "gained" ? "가장 많이 늘어난 글" : "가장 많이 읽힌 글", topPost ? fmt(valueOf(view, topPost)) : "–", "", topPost ? link(POST_URL(topPost.bo, topPost.id), topPost.title) : null)
+    );
+    if (best) tiles.append(tile(view === "gained" ? "가장 많이 늘어난 게시판" : "평균 1위 게시판", best.board, view === "gained" ? `${fmt(best.total)}회` : `글 1개당 ${fmt(best.avg)}회`, null, true));
+  }
+
+  function renderTake(stats, posts, ready) {
+    const m = stats.filter((b) => b.measurable && b.posts).sort((a, b) => (b.value ?? -1) - (a.value ?? -1));
+    if (view === "gained" && !ready) { $("#take").textContent = "올해 늘어난 조회수는 다음 자동 수집(매월 1일) 뒤부터 보여요."; return; }
+    if (!m.length) { $("#take").textContent = ""; return; }
+    const v = (b) => fmt(view === "gained" ? b.total : b.avg);
+    const top3 = m.slice(0, 3).map((b) => `${b.board}(${v(b)}회)`).join(", ");
+    $("#take").textContent = view === "gained" ? `올해 조회수가 가장 많이 늘어난 게시판은 ${top3} 순이에요.` : `글 하나가 평균적으로 가장 많이 읽히는 게시판은 ${top3} 순이에요.`;
+  }
+
+  function tipper(box) {
+    const tip = el("div", { className: "tip", hidden: true }); box.append(tip);
+    return {
+      show(ev, lines) {
+        tip.replaceChildren(...lines.map((l, i) => el("div", { className: i ? "" : "t", textContent: l })));
+        tip.hidden = false;
+        const r = box.getBoundingClientRect(); let x = ev.clientX - r.left + 12, y = ev.clientY - r.top + 12;
+        if (x + tip.offsetWidth > box.clientWidth) x = Math.max(0, ev.clientX - r.left - tip.offsetWidth - 12);
+        if (y + tip.offsetHeight > box.clientHeight) y = Math.max(0, box.clientHeight - tip.offsetHeight);
+        tip.style.left = x + "px"; tip.style.top = y + "px";
+      },
+      hide() { tip.hidden = true; }
+    };
+  }
+
+  const NS = "http://www.w3.org/2000/svg";
+  const svgEl = (tag, attrs = {}) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+
+  function renderBoardChart(stats, ready) {
+    const box = $("#chart"); box.replaceChildren();
+    const lg = $("#legend"); lg.replaceChildren();
+    const data = stats.filter((b) => b.posts && b.value != null).sort((a, b) => b.value - a.value);
+    if (!data.length || (view === "gained" && !ready)) { box.append(el("div", { className: "empty", textContent: view === "gained" ? "다음 자동 수집(매월 1일) 뒤부터 그래프가 생겨요." : "보여줄 글이 없어요." })); return; }
+    MENUS.forEach((m) => lg.append(el("span", {}, [el("i", { style: `background:${menuColor(m)}` }), m])));
+    lg.append(el("span", {}, [el("i", { style: `background:${css("--gray")}` }), "조회수 안 쌓임"]));
+    const W = box.clientWidth || 520, rowH = 26;
+    const svg = svgEl("svg", {}); box.append(svg);
+    const probe = svgEl("text", { "font-size": 12.5 }); svg.append(probe);
+    let lab = 0; data.forEach((d) => { probe.textContent = d.board; lab = Math.max(lab, probe.getComputedTextLength()); });
+    probe.textContent = fmt(data[0].value); const valW = probe.getComputedTextLength(); probe.remove();
+    const left = Math.min(lab + 12, W * 0.45), right = valW + 12, H = data.length * rowH + 4;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H);
+    const max = data[0].value || 1, span = Math.max(10, W - left - right);
+    const tt = tipper(box);
+    data.forEach((d, i) => {
+      const y = i * rowH, w = Math.max(2, (d.value / max) * span);
+      const g = svgEl("g", { transform: `translate(0,${y})` }); svg.append(g);
+      const name = svgEl("text", { x: left - 8, y: rowH / 2, dy: "0.35em", "text-anchor": "end", "font-size": 12.5, class: d.measurable ? "" : "m" }); name.textContent = d.board; g.append(name);
+      g.append(svgEl("rect", { x: left, y: 6, height: rowH - 12, width: w, rx: 4, fill: d.measurable ? menuColor(d.menu) : css("--gray") }));
+      const val = svgEl("text", { x: left + w + 6, y: rowH / 2, dy: "0.35em", "font-size": 12, class: "m" }); val.textContent = fmt(d.value); g.append(val);
+      const hit = svgEl("rect", { x: 0, y: 0, width: W, height: rowH, fill: "transparent" }); g.append(hit);
+      hit.addEventListener("mousemove", (ev) => tt.show(ev, [`${d.menu} · ${d.board}`, `글 ${fmt(d.posts)}개 · 합계 ${fmt(d.total)}회`, `글 1개당 평균 ${fmt(d.avg)}회`]));
+      hit.addEventListener("mouseleave", tt.hide);
+    });
+  }
+
+  function renderMonths() {
+    const card = $("#month-card"); card.hidden = view !== "gained";
+    if (card.hidden) return;
+    const box = $("#month-chart"); box.replaceChildren();
+    $("#month-note").textContent = `${S.year}년, 매월 1일 수집 사이에 늘어난 조회수예요. 첫 달은 ${S.baseDate.slice(5).replace("-", "/")}부터예요.`;
+    if (!S.months.length) { box.append(el("div", { className: "empty", textContent: "다음 자동 수집(매월 1일) 뒤부터 그래프가 생겨요." })); return; }
+    const W = box.clientWidth || 520, H = 220, top = 22, bottom = 26;
+    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, height: H }); box.append(svg);
+    const max = Math.max(...S.months.map((m) => m[1]), 1), n = S.months.length;
+    const band = W / n, bw = Math.min(36, band * 0.6), tt = tipper(box);
+    S.months.forEach(([label, v], i) => {
+      const h = (v / max) * (H - top - bottom), x = i * band + (band - bw) / 2, y = H - bottom - h;
+      svg.append(svgEl("rect", { x, y, width: bw, height: Math.max(1, h), rx: 4, fill: css("--accent") }));
+      const t = svgEl("text", { x: x + bw / 2, y: y - 6, "text-anchor": "middle", "font-size": 11.5, class: "m" }); t.textContent = fmt(v); svg.append(t);
+      const l = svgEl("text", { x: x + bw / 2, y: H - 8, "text-anchor": "middle", "font-size": 12 }); l.textContent = label; svg.append(l);
+      const hit = svgEl("rect", { x: i * band, y: 0, width: band, height: H, fill: "transparent" }); svg.append(hit);
+      hit.addEventListener("mousemove", (ev) => tt.show(ev, [label, `늘어난 조회수 ${fmt(v)}회`]));
+      hit.addEventListener("mouseleave", tt.hide);
+    });
+  }
+
+  function sortRows(rows, s) {
+    return rows.slice().sort((a, b) => { const x = a[s.k], y = b[s.k]; return ((x ?? -Infinity) > (y ?? -Infinity) ? 1 : (x ?? -Infinity) < (y ?? -Infinity) ? -1 : 0) * s.d; });
+  }
+
+  function head(table, cols, s, onSort) {
+    const tr = el("tr");
+    cols.forEach((c) => {
+      const th = el("th", { className: (c.n ? "n " : "") + (c.wide ? "wide" : "") });
+      th.setAttribute("aria-sort", s.k === c.k ? (s.d > 0 ? "ascending" : "descending") : "none");
+      const b = el("button", { textContent: c.label }); b.addEventListener("click", () => { if (s.k === c.k) s.d = -s.d; else { s.k = c.k; s.d = c.n ? -1 : 1; } onSort(); });
+      th.append(b); tr.append(th);
+    });
+    table.tHead.replaceChildren(tr);
+  }
+
+  function renderBoardTable(stats) {
+    const tbl = $("#board-table");
+    const g = view === "gained";
+    const cols = [{ k: "board", label: "게시판" }, { k: "menu", label: "메뉴", wide: 1 }, { k: "posts", label: "글 수", n: 1 },
+      { k: "total", label: g ? "늘어난 조회수" : "조회수 합계", n: 1 }, { k: "avg", label: "글 1개당 평균", n: 1 }, { k: "med", label: "중간값", n: 1, wide: 1 }];
+    const s = sorts.board; if (!cols.some((c) => c.k === s.k)) { s.k = g ? "total" : "avg"; s.d = -1; }
+    head(tbl, cols, s, () => renderBoardTable(stats));
+    const rows = sortRows(stats.filter((b) => b.posts), s);
+    const maxAvg = Math.max(...rows.map((r) => r.avg || 0), 1);
+    tbl.tBodies[0].replaceChildren(...rows.map((r) => {
+      const tr = el("tr", { className: r.measurable ? "" : "off" });
+      const avg = el("td", { className: "n", textContent: fmt(r.avg) });
+      avg.append(el("span", { className: "inbar", style: `width:${(36 * (r.avg || 0)) / maxAvg}px;background:${r.measurable ? menuColor(r.menu) : css("--gray")}` }));
+      tr.append(el("td", {}, [link(BOARD_URL(r.code), r.board)]), el("td", { className: "wide", textContent: r.menu }),
+        el("td", { className: "n", textContent: fmt(r.posts) }), el("td", { className: "n", textContent: fmt(r.total) }), avg,
+        el("td", { className: "n wide", textContent: fmt(r.med) }));
+      return tr;
+    }));
+  }
+
+  function renderPosts() {
+    const tbl = $("#post-table");
+    const names = Object.fromEntries(S.boards.map((b) => [b.code, b.board]));
+    const cols = [{ k: "title", label: "제목" }, { k: "board", label: "게시판", wide: 1 }, { k: "date", label: "작성일", wide: 1 },
+      { k: "value", label: view === "gained" ? "올해 늘어난 조회수" : "조회수", n: 1 }];
+    const s = sorts.post;
+    head(tbl, cols, s, renderPosts);
+    const q = $("#q").value.trim().toLowerCase(), bf = $("#bf").value;
+    const rows = sortRows(rowsFor(view).filter((p) => (!bf || p.bo === bf) && (!q || p.title.toLowerCase().includes(q)))
+      .map((p) => ({ ...p, board: names[p.bo], value: valueOf(view, p) })), s);
+    $("#count").textContent = `${fmt(rows.length)}개`;
+    tbl.tBodies[0].replaceChildren(...rows.map((p) => el("tr", {}, [
+      el("td", {}, [link(POST_URL(p.bo, p.id), p.title || "(제목 없음)")]),
+      el("td", { className: "wide", textContent: p.board }), el("td", { className: "wide", textContent: p.date }),
+      el("td", { className: "n", textContent: fmt(p.value) })])));
+  }
+
+  document.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => { view = b.dataset.view; history.replaceState(null, "", "#" + view); render(); }));
+  addEventListener("hashchange", () => { const h = location.hash.slice(1); if (S && ["all", "written", "gained"].includes(h) && h !== view) { view = h; render(); } });
+  $("#q").addEventListener("input", renderPosts);
+  $("#bf").addEventListener("change", renderPosts);
+  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => S && render(), 150); });
+  load().catch(() => { $("#meta").textContent = "데이터를 불러오지 못했어요. 잠시 뒤 새로고침해 주세요."; });
+})();
+</script>
+</body>
+</html>
