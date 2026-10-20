@@ -4,8 +4,20 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
       - run: |
-          curl -sS -m 20 -o /dev/null -w "kosif.org list: %{http_code} %{time_total}s\n" "https://kosif.org/bbs/board.php?bo_table=s4_2" || echo "kosif.org 실패"
-          curl -sS -m 20 -o /dev/null -w "kosif.org home: %{http_code}\n" "https://kosif.org/" || echo "home 실패"
-          curl -sS -m 20 -o /dev/null -w "en.kosif.org: %{http_code}\n" "https://en.kosif.org/" || echo "en 실패"
-          curl -sS -m 20 https://ipinfo.io/country || true
+          python - <<'PY'
+          import sys, urllib.request
+          sys.path.insert(0, "collector"); import collect
+          url = collect.BASE + "?bo_table=s4_2&page=1"
+          for ua in (collect.UA, "Mozilla/5.0", None):
+              h = {"User-Agent": ua} if ua else {}
+              try:
+                  r = urllib.request.urlopen(urllib.request.Request(url, headers=h), timeout=20)
+                  b = r.read().decode("utf-8", "replace")
+                  print(ua, r.status, len(b), len(collect.parse_list_ids(b, "s4_2")))
+              except Exception as e:
+                  print(ua, "ERR", repr(e)[:300])
+          PY
