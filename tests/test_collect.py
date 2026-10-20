@@ -103,6 +103,23 @@ class CollectTests(unittest.TestCase):
         self.assertNotIn("s4_2/2", snap)
         self.assertEqual(posts["s4_2/2"]["deleted"], "2026-11-01")
 
+    def test_board_with_empty_list_and_gaps_found_fully(self):
+        # CDP Resources처럼 목록에 번호가 하나도 안 보이고, 중간에 빈 번호가 있어도 끝까지 찾는다
+        site = FakeSite({("s4_2", w): 5 for w in list(range(4, 35)) + list(range(36, 51))})
+        snap = collect.collect(site.fetch, {}, "2026-10-20")
+        self.assertEqual(len(snap), 46)
+
+    def test_only_new_does_not_reopen_known_posts(self):
+        site = FakeSite({("s4_2", 1): 11})
+        site.listed["s4_2"] = [1]
+        posts = {}
+        collect.collect(site.fetch, posts, "2026-10-20")
+        site.hits[("s4_2", 15)] = 21          # 앞선 수집 때 못 찾은 글(이미 한 번 열림)
+        snap = collect.collect(site.fetch, posts, "2026-10-20", only_new=True, new_prior=1)
+        self.assertEqual(site.hits[("s4_2", 1)], 12)   # 1번 글은 다시 안 열림
+        self.assertEqual(snap, {"s4_2/15": 20})
+        self.assertEqual(posts["s4_2/1"]["visits"], 2)
+
     def test_site_down_gives_empty_snapshot(self):
         posts = {}
         snap = collect.collect(lambda url: None, posts, "2026-11-01")

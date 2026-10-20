@@ -39,7 +39,7 @@ BOARDS = [
 ]
 # 목록에서 파일을 바로 받는 구조라 글을 열 일이 없어 조회수가 거의 안 쌓이는 게시판
 UNMEASURED = {"s3_4", "s4_7"}
-PROBE_MARGIN = 15     # 알려진 최대 글 번호 뒤로 더 확인할 개수(새 글·목록에 없는 글 찾기)
+PROBE_MARGIN = 20     # 마지막으로 찾은 글 번호 뒤로 이만큼 비어 있으면 그 게시판 탐색을 멈춘다
 MAX_LIST_PAGES = 60
 WORKERS = 4
 PAUSE = 0.15
@@ -85,24 +85,16 @@ def key(bo, wid):
     return f"{bo}/{wid}"
 
 
-def collect(fetch, posts, today, first_run_prior=1):
+def collect(fetch, posts, today, first_run_prior=1, only_new=False, new_prior=0):
     """한 번 수집. fetch(url) -> str|None. posts(dict)를 고쳐 쓰고 그날 스냅샷을 돌려준다.
 
     first_run_prior: posts가 비어 있을 때(첫 실행) 이미 한 번씩 열었던 횟수(2026-10-20 수동 수집).
+    only_new: 이미 아는 글은 열지 않고, 아직 모르는 번호만 찾는다(빠진 글 보충용).
+    new_prior: 새로 찾은 글이 이미 열렸던 횟수(보충할 때 쓴다).
     """
-    first = not posts
+    prior = first_run_prior if not posts else new_prior
     snap = {}
-    jobs = []
-    for bo, _menu, _name in BOARDS:
-        ids = {p["id"] for p in posts.values() if p["bo"] == bo}
-        for page in range(1, MAX_LIST_PAGES + 1):
-            html = fetch(f"{BASE}?bo_table={bo}&page={page}") or ""
-            found = parse_list_ids(html, bo)
-            if not found - ids and page > 1:
-                break
-            ids |= found
-        top = max(ids) if ids else 0
-        jobs += [(bo, wid) for wid in range(1, top + PROBE_MARGIN + 1)]
+    results = []
 
     def one(job):
         bo, wid = job
@@ -110,7 +102,24 @@ def collect(fetch, posts, today, first_run_prior=1):
         return job, parse_view(fetch(f"{BASE}?bo_table={bo}&wr_id={wid}") or "")
 
     with ThreadPoolExecutor(WORKERS) as ex:
-        results = list(ex.map(one, jobs))
+        for bo, _menu, _name in BOARDS:
+            known = {p["id"] for p in posts.values() if p["bo"] == bo and not p.get("deleted")}
+            ids = set(known)
+            for page in range(1, MAX_LIST_PAGES + 1):
+                found = parse_list_ids(fetch(f"{BASE}?bo_table={bo}&page={page}") or "", bo)
+                if not found - ids and page > 1:
+                    break
+                ids |= found
+            # 번호를 차례로 확인하되, 마지막으로 찾은 번호 뒤로 PROBE_MARGIN개가 비면 멈춘다
+            start, end = 1, max(ids, default=0) + PROBE_MARGIN
+            while True:
+                batch = [(bo, w) for w in range(start, end + 1) if not (only_new and w in known)]
+                got = list(ex.map(one, batch))
+                results += got
+                exists = {w for (_b, w), g in got if g} | {w for w in known if start <= w <= end}
+                if not exists or max(exists) <= end - PROBE_MARGIN:
+                    break
+                start, end = end + 1, max(exists) + PROBE_MARGIN
 
     for (bo, wid), got in results:
         k = key(bo, wid)
@@ -120,7 +129,7 @@ def collect(fetch, posts, today, first_run_prior=1):
                 p["deleted"] = today
             continue
         if p is None:
-            p = posts[k] = {"bo": bo, "id": wid, "visits": first_run_prior if first else 0}
+            p = posts[k] = {"bo": bo, "id": wid, "visits": prior}
         p.pop("deleted", None)
         p["visits"] += 1
         p.update(title=got["title"], cat=got["cat"], date=got["date"],
@@ -145,7 +154,7 @@ def make_fetch():
     return fetch
 
 
-def main(data_dir):
+def main(data_dir, only_new=False, new_prior=0):
     today = dt.datetime.now(dt.timezone(dt.timedelta(hours=9)))
     day = today.strftime("%Y-%m-%d")
     posts_path = os.path.join(data_dir, "posts.json")
@@ -155,7 +164,11 @@ def main(data_dir):
             posts = json.load(f)
     fetch = make_fetch()
     fetch(f"{BASE}?bo_table={BOARDS[0][0]}")  # 세션 쿠키를 먼저 받아 둔다
-    snap = collect(fetch, posts, day)
+    snap = collect(fetch, posts, day, only_new=only_new, new_prior=new_prior)
+    day_path = os.path.join(data_dir, "snapshots", f"{day}.json")
+    if only_new and os.path.exists(day_path):
+        with open(day_path, encoding="utf-8") as f:
+            snap = {**json.load(f), **snap}
     if not snap:
         print("글을 하나도 읽지 못했습니다. 저장하지 않고 끝냅니다.", file=sys.stderr)
         return 1
@@ -163,7 +176,7 @@ def main(data_dir):
     os.makedirs(os.path.join(data_dir, "snapshots"), exist_ok=True)
     with open(posts_path, "w", encoding="utf-8") as f:
         json.dump(posts, f, ensure_ascii=False, indent=0, sort_keys=True)
-    with open(os.path.join(data_dir, "snapshots", f"{day}.json"), "w", encoding="utf-8") as f:
+    with open(day_path, "w", encoding="utf-8") as f:
         json.dump(snap, f, sort_keys=True, separators=(",", ":"))
     idx_path = os.path.join(data_dir, "snapshots", "index.json")
     idx = {"snapshots": []}
@@ -182,4 +195,10 @@ def main(data_dir):
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else "data"))
+    import argparse
+    ap = argparse.ArgumentParser(description="kosif.org 조회수 수집")
+    ap.add_argument("data_dir", nargs="?", default="data")
+    ap.add_argument("--only-new", action="store_true", help="이미 아는 글은 열지 않고 빠진 글만 찾기")
+    ap.add_argument("--new-prior", type=int, default=0, help="새로 찾은 글이 이미 열렸던 횟수")
+    a = ap.parse_args()
+    sys.exit(main(a.data_dir, a.only_new, a.new_prior))
