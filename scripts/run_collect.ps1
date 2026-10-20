@@ -4,7 +4,8 @@
 #        run_collect.ps1 -Force   -> collect now anyway (each run adds +1 view per post on kosif.org)
 param([switch]$Force)
 
-$ErrorActionPreference = "Stop"
+# Native commands (git, python) report through $LASTEXITCODE; stderr text must not abort the run.
+$ErrorActionPreference = "Continue"
 $repo = Split-Path -Parent $PSScriptRoot
 $python = "C:\Users\KoSIF\AppData\Local\Programs\Python\Python312\python.exe"
 $logDir = Join-Path $repo "logs"
