@@ -31,7 +31,7 @@ for ($i = 0; $i -lt 30; $i++) {
 if (-not $ok) { Log "fail: kosif.org not reachable"; exit 1 }
 
 try {
-    git pull --quiet --rebase 2>&1 | Out-Null
+    git pull --quiet --rebase --autostash 2>&1 | Out-Null
     & $python collector\collect.py data 2>&1 | ForEach-Object { Log "collect: $_" }
     if ($LASTEXITCODE -ne 0) { Log "fail: collector exit $LASTEXITCODE"; exit 1 }
     git add data
