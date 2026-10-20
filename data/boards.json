@@ -1,0 +1,110 @@
+[
+ {
+  "code": "s2_2_2",
+  "menu": "활동",
+  "board": "ESG 정책·법 Updates",
+  "measurable": true
+ },
+ {
+  "code": "s2_3_2",
+  "menu": "활동",
+  "board": "지속가능금융 Updates",
+  "measurable": true
+ },
+ {
+  "code": "s2_4_2",
+  "menu": "활동",
+  "board": "RE100 Updates",
+  "measurable": true
+ },
+ {
+  "code": "s2_5_2",
+  "menu": "활동",
+  "board": "EV100 Updates",
+  "measurable": true
+ },
+ {
+  "code": "s2_6_2",
+  "menu": "활동",
+  "board": "CoREi Updates",
+  "measurable": true
+ },
+ {
+  "code": "s2_7_2",
+  "menu": "활동",
+  "board": "TCFD Updates",
+  "measurable": true
+ },
+ {
+  "code": "s2_8_2",
+  "menu": "활동",
+  "board": "SBTi Updates",
+  "measurable": true
+ },
+ {
+  "code": "s2_9_2",
+  "menu": "활동",
+  "board": "PCAF Updates",
+  "measurable": true
+ },
+ {
+  "code": "s2_10_2",
+  "menu": "활동",
+  "board": "EnergyTag Updates",
+  "measurable": true
+ },
+ {
+  "code": "s3_2",
+  "menu": "CDP",
+  "board": "CDP 공지사항",
+  "measurable": true
+ },
+ {
+  "code": "s3_3",
+  "menu": "CDP",
+  "board": "CDP FAQ",
+  "measurable": true
+ },
+ {
+  "code": "s3_4",
+  "menu": "CDP",
+  "board": "CDP Resources",
+  "measurable": false
+ },
+ {
+  "code": "s4_2",
+  "menu": "소식",
+  "board": "KoSIF 소식",
+  "measurable": true
+ },
+ {
+  "code": "s4_3",
+  "menu": "소식",
+  "board": "인사이트",
+  "measurable": true
+ },
+ {
+  "code": "s4_5",
+  "menu": "소식",
+  "board": "행사자료",
+  "measurable": true
+ },
+ {
+  "code": "s4_6",
+  "menu": "소식",
+  "board": "보도자료",
+  "measurable": true
+ },
+ {
+  "code": "s4_7",
+  "menu": "소식",
+  "board": "정기간행물",
+  "measurable": false
+ },
+ {
+  "code": "s5_1",
+  "menu": "자료실",
+  "board": "자료실",
+  "measurable": true
+ }
+]
