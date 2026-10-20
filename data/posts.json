@@ -5084,6 +5084,213 @@
 "title": "2023 CDP Water Security 작성안내서 (국문) 개정본",
 "visits": 2
 },
+"s3_4/16": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2023-05-30",
+"hits": 1,
+"id": 16,
+"title": "2023 CDP Water Security 질의서 (국문)",
+"visits": 2
+},
+"s3_4/17": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2023-05-19",
+"hits": 0,
+"id": 17,
+"title": "2023 CDP Climate Change 평가방법론 (국문) 개정본",
+"visits": 2
+},
+"s3_4/18": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2023-05-18",
+"hits": 0,
+"id": 18,
+"title": "2023 CDP Climate Change 질의서 (국문) 개정본",
+"visits": 2
+},
+"s3_4/19": {
+"bo": "s3_4",
+"cat": "[보고서]",
+"date": "2023-02-27",
+"hits": 1,
+"id": 19,
+"title": "2022 CDP 한국 보고서",
+"visits": 2
+},
+"s3_4/20": {
+"bo": "s3_4",
+"cat": "[보고서]",
+"date": "2023-02-27",
+"hits": 0,
+"id": 20,
+"title": "2022 CDP Best Practice",
+"visits": 2
+},
+"s3_4/21": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2022-06-30",
+"hits": 1,
+"id": 21,
+"title": "2022 CDP Water 작성안내서 (국문)",
+"visits": 2
+},
+"s3_4/22": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2022-05-31",
+"hits": 0,
+"id": 22,
+"title": "2022 CDP Water 평가방법론 (국문)",
+"visits": 2
+},
+"s3_4/23": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2022-05-31",
+"hits": 1,
+"id": 23,
+"title": "2022 CDP Climate Change 작성안내서 (국문)",
+"visits": 2
+},
+"s3_4/24": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2022-05-24",
+"hits": 1,
+"id": 24,
+"title": "2022 CDP Climate Change 평가방법론 (국문)",
+"visits": 2
+},
+"s3_4/25": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2022-05-20",
+"hits": 0,
+"id": 25,
+"title": "2022 CDP Water 질의서 (국문)",
+"visits": 2
+},
+"s3_4/26": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2022-04-21",
+"hits": 0,
+"id": 26,
+"title": "2022 CDP Climate Change 질의서 (국문)",
+"visits": 2
+},
+"s3_4/27": {
+"bo": "s3_4",
+"cat": "[보고서]",
+"date": "2022-02-22",
+"hits": 0,
+"id": 27,
+"title": "2021 CDP Supply Chain 글로벌 보고서",
+"visits": 2
+},
+"s3_4/28": {
+"bo": "s3_4",
+"cat": "[보고서]",
+"date": "2022-01-27",
+"hits": 0,
+"id": 28,
+"title": "2021 CDP 한국 보고서",
+"visits": 2
+},
+"s3_4/29": {
+"bo": "s3_4",
+"cat": "[보고서]",
+"date": "2022-01-19",
+"hits": 236,
+"id": 29,
+"title": "CDP Korea Climate Change and Water Report 2020",
+"visits": 2
+},
+"s3_4/30": {
+"bo": "s3_4",
+"cat": "[보고서]",
+"date": "2022-01-18",
+"hits": 1,
+"id": 30,
+"title": "CDP Korea Climate Change and Water Report 2019",
+"visits": 2
+},
+"s3_4/31": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2022-01-05",
+"hits": 0,
+"id": 31,
+"title": "CDP Climate Change 2021 평가방법론 (국문)",
+"visits": 2
+},
+"s3_4/32": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2022-01-04",
+"hits": 0,
+"id": 32,
+"title": "CDP Climate Change 2021 작성안내서 (국문)",
+"visits": 2
+},
+"s3_4/33": {
+"bo": "s3_4",
+"cat": "[보고서]",
+"date": "2022-01-04",
+"hits": 1,
+"id": 33,
+"title": "CDP Korea Climate Change and Water Report 2018",
+"visits": 2
+},
+"s3_4/34": {
+"bo": "s3_4",
+"cat": "[보고서]",
+"date": "2022-01-04",
+"hits": 1,
+"id": 34,
+"title": "CDP Korea Climate Change Report 2017",
+"visits": 2
+},
+"s3_4/36": {
+"bo": "s3_4",
+"cat": "[보고서]",
+"date": "2025-04-29",
+"hits": 2,
+"id": 36,
+"title": "2024 CDP 한국 보고서",
+"visits": 2
+},
+"s3_4/37": {
+"bo": "s3_4",
+"cat": "[보고서]",
+"date": "2025-04-29",
+"hits": 1,
+"id": 37,
+"title": "2024 CDP Best Practice",
+"visits": 2
+},
+"s3_4/38": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2025-07-22",
+"hits": 1,
+"id": 38,
+"title": "(V1.2 업데이트) 2025 CDP Climate Change+Water Secutiry 작성안내서 (국문)",
+"visits": 2
+},
+"s3_4/39": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2025-07-22",
+"hits": 2,
+"id": 39,
+"title": "(V1.2 업데이트) 2025 CDP Climate Change 평가방법론 (국문)",
+"visits": 2
+},
 "s3_4/4": {
 "bo": "s3_4",
 "cat": "[가이드라인]",
@@ -5093,6 +5300,96 @@
 "title": "2024 CDP Water Security 평가방법론 (국문)",
 "visits": 2
 },
+"s3_4/40": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2025-07-22",
+"hits": 3,
+"id": 40,
+"title": "(V1.2 업데이트) 2025 CDP Water Security 평가방법론 (국문)",
+"visits": 2
+},
+"s3_4/41": {
+"bo": "s3_4",
+"cat": "[보고서]",
+"date": "2026-03-10",
+"hits": 1,
+"id": 41,
+"title": "2025 CDP 한국 보고서",
+"visits": 2
+},
+"s3_4/42": {
+"bo": "s3_4",
+"cat": "[보고서]",
+"date": "2026-03-10",
+"hits": 0,
+"id": 42,
+"title": "2025 CDP Best Practice",
+"visits": 2
+},
+"s3_4/43": {
+"bo": "s3_4",
+"cat": "[기타]",
+"date": "2026-05-14",
+"hits": 0,
+"id": 43,
+"title": "KoSIF 이슈 브리프 Vol.02 - 한국기업의 물 리스크·공시 현황과 과제",
+"visits": 2
+},
+"s3_4/44": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2026-06-23",
+"hits": 2,
+"id": 44,
+"title": "2026 CDP Climate Change + Water Security 질의서 V1.3 (국문)",
+"visits": 2
+},
+"s3_4/45": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2026-06-23",
+"hits": 2,
+"id": 45,
+"title": "2026 CDP Climate Change+Water Security 작성안내서 V1.2 (국문)",
+"visits": 2
+},
+"s3_4/46": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2026-06-23",
+"hits": 4,
+"id": 46,
+"title": "2026 CDP Climate Change 평가방법론 V1.3 (국문)",
+"visits": 2
+},
+"s3_4/47": {
+"bo": "s3_4",
+"cat": "[가이드라인]",
+"date": "2026-06-30",
+"hits": 0,
+"id": 47,
+"title": "2026 CDP Water Security 평가방법론 V1.3 (국문)",
+"visits": 2
+},
+"s3_4/48": {
+"bo": "s3_4",
+"cat": "[보고서]",
+"date": "2026-08-14",
+"hits": 2,
+"id": 48,
+"title": "CDP Korea Climate Change and Water Report 2025",
+"visits": 2
+},
+"s3_4/49": {
+"bo": "s3_4",
+"cat": "[보고서]",
+"date": "2026-09-02",
+"hits": 1,
+"id": 49,
+"title": "국내 반도체·AI 기업의 재생에너지 조달 병목과 글로벌 격차",
+"visits": 2
+},
 "s3_4/5": {
 "bo": "s3_4",
 "cat": "[가이드라인]",
@@ -5100,6 +5397,15 @@
 "hits": 3,
 "id": 5,
 "title": "2024 CDP Climate Change 평가방법론 (국문)",
+"visits": 2
+},
+"s3_4/50": {
+"bo": "s3_4",
+"cat": "[보고서]",
+"date": "2026-10-12",
+"hits": 0,
+"id": 50,
+"title": "물, 무역 그리고 자본: 물 리스크는 지정학·공급망·금융 리스크를 어떻게 재편하는가",
 "visits": 2
 },
 "s3_4/6": {
