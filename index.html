@@ -120,7 +120,7 @@ ul.notes { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13.5px
     <h2>읽을 때 알아둘 점</h2>
     <ul class="notes">
       <li>조회수는 <b>글을 연 횟수</b>예요. 같은 사람이 다시 열어도 올라가서 방문자 수와는 달라요.</li>
-      <li>매월 1일 오전 9시에 자동으로 모든 글을 한 번씩 열어서 숫자를 읽어요. 그때 생기는 조회수는 이 페이지 숫자에서 <b>빼고</b> 보여줘요.</li>
+      <li>매월 1일 오전 10시에(그때 컴퓨터가 꺼져 있으면 켜지는 대로) 모든 글을 한 번씩 열어서 숫자를 읽어요. 그때 생기는 조회수는 이 페이지 숫자에서 <b>빼고</b> 보여줘요.</li>
       <li><b>CDP Resources·정기간행물</b>은 목록에서 파일을 바로 받는 구조라 조회수가 거의 안 쌓여요(회색). 인기가 없다는 뜻이 아니에요.</li>
       <li>‘올해 생긴 조회수’는 2026년 10월 20일부터 쌓기 시작했어요. 2027년부터는 1월 1일부터 온전히 보여요.</li>
       <li>2025년 3월 홈페이지 이전 때 옛 글 조회수가 초기화됐을 수 있어요(확인 안 됨).</li>
@@ -214,7 +214,7 @@ ul.notes { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13.5px
     $("#chart-title").textContent = t.chart;
     $("#chart-note").textContent = t.note;
     const upd = S.updated ? new Date(S.updated) : null;
-    $("#meta").textContent = `마지막 갱신: ${upd ? upd.toLocaleString("ko-KR", { dateStyle: "long", timeStyle: "short", timeZone: "Asia/Seoul" }) : S.latestDate} · 다음 자동 갱신: 매월 1일 오전 9시`;
+    $("#meta").textContent = `마지막 갱신: ${upd ? upd.toLocaleString("ko-KR", { dateStyle: "long", timeStyle: "short", timeZone: "Asia/Seoul" }) : S.latestDate} · 다음 자동 갱신: 매월 1일 오전 10시`;
     const stats = boardStats(view);
     const posts = rowsFor(view);
     const gainedReady = S.yearDates.length > 1 || posts.some((p) => p.isNew);

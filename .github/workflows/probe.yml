@@ -1,7 +1,0 @@
-name: 접속 확인(임시)
-on: workflow_dispatch
-jobs:
-  probe:
-    runs-on: ubuntu-latest
-    steps:
-      - run: curl -sS -m 20 -A "Mozilla/5.0" -i "https://kosif.org/bbs/board.php?bo_table=s4_2" | head -c 1500
