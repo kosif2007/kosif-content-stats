@@ -1,0 +1,11 @@
+name: 접속 확인(임시)
+on: workflow_dispatch
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl -sS -m 20 -o /dev/null -w "kosif.org list: %{http_code} %{time_total}s\n" "https://kosif.org/bbs/board.php?bo_table=s4_2" || echo "kosif.org 실패"
+          curl -sS -m 20 -o /dev/null -w "kosif.org home: %{http_code}\n" "https://kosif.org/" || echo "home 실패"
+          curl -sS -m 20 -o /dev/null -w "en.kosif.org: %{http_code}\n" "https://en.kosif.org/" || echo "en 실패"
+          curl -sS -m 20 https://ipinfo.io/country || true
